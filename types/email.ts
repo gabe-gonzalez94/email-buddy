@@ -3,6 +3,8 @@ export type EmailMode = 'new' | 'reply';
 export type EmailTone =
   | 'Professional'
   | 'Friendly'
+  | 'Concise'
+  | 'Empathetic'
   | 'Formal'
   | 'Casual'
   | 'Persuasive'
@@ -20,6 +22,6 @@ export interface EmailGenerationInput {
 }
 
 export interface EmailGenerationOutput {
-  subject: string;
+  subject: string | null;
   body: string;
 }

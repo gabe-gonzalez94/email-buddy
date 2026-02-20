@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,7 +16,7 @@ import { PillSelector } from '../components/PillSelector';
 import { TextAreaInput } from '../components/TextAreaInput';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { useEmailForm } from '../hooks/useEmailForm';
-import { generateEmailMock } from '../lib/generateEmailMock';
+import { generateEmail, EmailApiError } from '../lib/api/email';
 import { colors, spacing, typography } from '../lib/theme';
 import type { EmailLength, EmailMode, EmailTone } from '../types/email';
 
@@ -27,6 +28,8 @@ const MODE_OPTIONS = [
 const TONES: readonly EmailTone[] = [
   'Professional',
   'Friendly',
+  'Concise',
+  'Empathetic',
   'Formal',
   'Casual',
   'Persuasive',
@@ -53,14 +56,23 @@ export default function HomeScreen() {
     if (!isValid) return;
     setLoading(true);
     try {
-      const result = await generateEmailMock(form);
+      const result = await generateEmail(form);
       router.push({
         pathname: '/result',
         params: {
-          subject: result.subject,
+          subject: result.subject ?? '',
           body: result.body,
         },
       });
+    } catch (err) {
+      const message =
+        err instanceof EmailApiError
+          ? err.message
+          : 'Something went wrong. Please try again.';
+
+      if (__DEV__) console.error('[EmailBuddy] Generation error:', err);
+
+      Alert.alert('Generation Failed', message);
     } finally {
       setLoading(false);
     }
