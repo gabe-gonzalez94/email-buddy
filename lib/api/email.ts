@@ -58,7 +58,10 @@ async function callApi(input: EmailGenerationInput): Promise<EmailGenerationOutp
   } catch (err) {
     if (err instanceof EmailApiError) throw err;
 
-    if (err instanceof DOMException && err.name === 'AbortError') {
+    const isAbort =
+      err instanceof Error && (err.name === 'AbortError' || err.name === 'TimeoutError');
+
+    if (isAbort) {
       throw new EmailApiError('Request timed out. Please try again.');
     }
 
